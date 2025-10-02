@@ -12,6 +12,8 @@ import { UserConfigService } from './repositories/userConfig/service';
 import { InterfaceService } from './repositories/interface/service';
 import { HooksService } from './repositories/hooks/service';
 import { OneTimeLinkService } from './repositories/oneTimeLink/service';
+import { UpstreamService } from './repositories/upstream/service';
+import { SplitRuleService } from './repositories/splitRule/service';
 
 const DB_DEBUG = debug('Database');
 
@@ -42,6 +44,8 @@ class DBService {
   interfaces: InterfaceService;
   hooks: HooksService;
   oneTimeLinks: OneTimeLinkService;
+  upstreams: UpstreamService;
+  splitRules: SplitRuleService;
 
   constructor(db: DBType) {
     this.clients = new ClientService(db);
@@ -51,6 +55,8 @@ class DBService {
     this.interfaces = new InterfaceService(db);
     this.hooks = new HooksService(db);
     this.oneTimeLinks = new OneTimeLinkService(db);
+    this.upstreams = new UpstreamService(db);
+    this.splitRules = new SplitRuleService(db);
   }
 }
 

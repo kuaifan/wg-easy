@@ -6,3 +6,5 @@ export * from './repositories/interface/schema';
 export * from './repositories/oneTimeLink/schema';
 export * from './repositories/user/schema';
 export * from './repositories/userConfig/schema';
+export * from './repositories/upstream/schema';
+export * from './repositories/splitRule/schema';

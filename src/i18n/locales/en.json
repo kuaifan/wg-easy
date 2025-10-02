@@ -41,7 +41,12 @@
     "confirmPassword": "Confirm Password",
     "loading": "Loading...",
     "2fa": "Two Factor Authentication",
-    "2faCode": "TOTP Code"
+    "2faCode": "TOTP Code",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enable": "Enable",
+    "disable": "Disable",
+    "status": "Status"
   },
   "setup": {
     "welcome": "Welcome to your first setup of wg-easy",
@@ -136,7 +141,12 @@
     "sectionAdvanced": "Advanced",
     "noItems": "No items",
     "nullNoItems": "No items. Using global config",
-    "add": "Add"
+    "add": "Add",
+    "create": "Create",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "edit": "Edit"
   },
   "admin": {
     "general": {
@@ -236,5 +246,86 @@
     "postUp": "PostUp",
     "preDown": "PreDown",
     "postDown": "PostDown"
-  }
-}
+  },
+  "splitTunneling": {
+    "title": "Split Tunneling",
+    "description": "Configure upstream server and routing rules for this client",
+    "enableSplitTunneling": "Enable Split Tunneling",
+    "enableDescription": "Route specific traffic through an upstream WireGuard server",
+    "upstreamServer": "Upstream Server",
+    "upstreamServers": "Upstream Servers",
+    "noUpstream": "No Upstream (Direct Only)",
+    "noUpstreamsAvailable": "No upstream servers available. Please create one first.",
+    "createUpstream": "Go to Upstream Servers",
+    "routingRules": "Routing Rules",
+    "rulesDescription": "Define which domains or IPs should be routed through the upstream server",
+    "noRules": "No rules configured. Add a rule below.",
+    "addNewRule": "Add New Rule",
+    "ruleType": "Rule Type",
+    "value": "Value",
+    "action": "Action",
+    "domain": "Domain",
+    "ipCidr": "IP/CIDR",
+    "proxy": "Proxy",
+    "direct": "Direct",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "addRule": "Add Rule",
+    "adding": "Adding...",
+    "addUpstream": "Add Upstream Server",
+    "createUpstream": "Create Upstream Server",
+    "interface": "Interface",
+    "interfaceDescription": "WireGuard interface name (auto-generated)",
+    "endpoint": "Endpoint",
+    "endpointDescription": "Upstream server address and port (e.g., example.com:51820)",
+    "keys": "Keys",
+    "upstreamPublicKey": "Upstream Server Public Key",
+    "upstreamPublicKeyDesc": "The public key of the upstream WireGuard server",
+    "localPrivateKey": "Local Private Key",
+    "localPrivateKeyDesc": "Private key for connecting to upstream (will be generated)",
+    "hasPrivateKey": "Has Private Key",
+    "privateKeyNotShown": "Private key is not shown for security",
+    "presharedKey": "Pre-shared Key (Optional)",
+    "presharedKeyDesc": "Additional layer of symmetric encryption",
+    "generateKeys": "Generate Keys",
+    "allowedIpsDescription": "IP ranges allowed through this upstream (usually 0.0.0.0/0)",
+    "persistentKeepaliveDesc": "Keep connection alive (25 seconds recommended)",
+    "mtuDescription": "Maximum transmission unit (1360 recommended for nested WireGuard)",
+    "noUpstreams": "No upstream servers configured. Create one to get started."
+  },
+  "zod": {
+    "generic": {
+      "required": "{0} is required",
+      "validNumber": "{0} must be a valid number",
+      "validString": "{0} must be a valid string",
+      "validBoolean": "{0} must be a valid boolean",
+      "validArray": "{0} must be a valid array",
+      "stringMin": "{0} must be at least {1} Character",
+      "numberMin": "{0} must be at least {1}"
+    },
+    "client": {
+      "id": "Client ID",
+      "name": "Name",
+      "expiresAt": "Expires At",
+      "address4": "IPv4 Address",
+      "address6": "IPv6 Address",
+      "serverAllowedIps": "Server Allowed IPs"
+    },
+    "upstream": {
+      "id": "Upstream ID",
+      "name": "Upstream Name",
+      "endpoint": "Upstream Endpoint",
+      "endpointFormat": "Endpoint must be in format: host:port",
+      "publicKey": "Public Key",
+      "privateKey": "Private Key",
+      "presharedKey": "Pre-shared Key",
+      "keyLength": "Key must be 44 characters (Base64 encoded)",
+      "allowedIps": "Allowed IPs",
+      "allowedIpsMin": "At least one IP range required"
+    },
+    "splitRule": {
+      "id": "Rule ID",
+      "ruleType": "Rule Type",
+      "ruleValue": "Rule Value",
+      "action": "Action"
+    },

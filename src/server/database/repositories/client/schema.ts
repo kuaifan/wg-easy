@@ -1,7 +1,7 @@
 import { sql, relations } from 'drizzle-orm';
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-import { oneTimeLink, user, wgInterface } from '../../schema';
+import { oneTimeLink, user, wgInterface, upstreamServer, splitRule } from '../../schema';
 
 /** null means use value from userConfig */
 
@@ -39,6 +39,14 @@ export const client = sqliteTable('clients_table', {
   dns: text({ mode: 'json' }).$type<string[]>(),
   serverEndpoint: text('server_endpoint'),
   enabled: int({ mode: 'boolean' }).notNull(),
+  // Split tunneling fields
+  upstreamEnabled: int('upstream_enabled', { mode: 'boolean' })
+    .default(false)
+    .notNull(),
+  upstreamId: int('upstream_id').references(() => upstreamServer.id, {
+    onDelete: 'set null',
+    onUpdate: 'cascade',
+  }),
   createdAt: text('created_at')
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`),
@@ -48,7 +56,7 @@ export const client = sqliteTable('clients_table', {
     .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
 
-export const clientsRelations = relations(client, ({ one }) => ({
+export const clientsRelations = relations(client, ({ one, many }) => ({
   oneTimeLink: one(oneTimeLink, {
     fields: [client.id],
     references: [oneTimeLink.id],
@@ -61,4 +69,9 @@ export const clientsRelations = relations(client, ({ one }) => ({
     fields: [client.interfaceId],
     references: [wgInterface.name],
   }),
+  upstreamServer: one(upstreamServer, {
+    fields: [client.upstreamId],
+    references: [upstreamServer.id],
+  }),
+  splitRules: many(splitRule),
 }));

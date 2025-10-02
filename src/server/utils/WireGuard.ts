@@ -196,6 +196,26 @@ class WireGuard {
     await this.#syncWireguardConfig(wgInterface);
     WG_DEBUG(`Wireguard Interface ${wgInterface.name} started successfully.`);
 
+    // Start Split Tunneling feature
+    WG_DEBUG('Starting Split Tunneling...');
+    try {
+      await SplitTunneling.initialize();
+
+      // Start dnsmasq
+      await exec('dnsmasq').catch((err) => {
+        WG_DEBUG('dnsmasq start warning:', err);
+        // May already be running, ignore error
+      });
+
+      // Apply split tunneling configurations
+      await SplitTunneling.applyAllConfigs();
+      WG_DEBUG('Split Tunneling started successfully.');
+    } catch (err) {
+      WG_DEBUG('Failed to start Split Tunneling:', err);
+      console.error('Split Tunneling Error:', err);
+      // Don't block main process, continue running
+    }
+
     WG_DEBUG('Starting Cron Job...');
     await this.startCronJob();
     WG_DEBUG('Cron Job started successfully.');
@@ -213,8 +233,21 @@ class WireGuard {
 
   // Shutdown wireguard
   async Shutdown() {
+    WG_DEBUG('Shutting down WireGuard...');
+
+    // Stop Split Tunneling first
+    WG_DEBUG('Stopping Split Tunneling...');
+    try {
+      await SplitTunneling.cleanup();
+      WG_DEBUG('Split Tunneling stopped.');
+    } catch (err) {
+      WG_DEBUG('Error stopping Split Tunneling:', err);
+    }
+
     const wgInterface = await Database.interfaces.get();
     await wg.down(wgInterface.name).catch(() => {});
+
+    WG_DEBUG('WireGuard shutdown complete.');
   }
 
   async Restart() {
@@ -252,6 +285,11 @@ class WireGuard {
     if (needsSave) {
       await this.saveConfig();
     }
+
+    // Split Tunneling Health Check
+    await SplitTunneling.healthCheck().catch((err) => {
+      WG_DEBUG('Split tunneling health check failed:', err);
+    });
   }
 }
 

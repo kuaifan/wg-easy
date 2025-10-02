@@ -15,7 +15,10 @@ export type CreateClientType = Omit<
 export type UpdateClientType = Omit<
   CreateClientType,
   'privateKey' | 'publicKey' | 'preSharedKey' | 'userId' | 'interfaceId'
->;
+> & {
+  upstreamEnabled?: boolean;
+  upstreamId?: number | null;
+};
 
 const name = z
   .string({ message: t('zod.client.name') })
@@ -67,6 +70,8 @@ export const ClientUpdateSchema = schemaForType<UpdateClientType>()(
     persistentKeepalive: PersistentKeepaliveSchema,
     serverEndpoint: AddressSchema.nullable(),
     dns: DnsSchema.nullable(),
+    upstreamEnabled: EnabledSchema.optional(),
+    upstreamId: z.coerce.number().nullable().optional(),
   })
 );
 

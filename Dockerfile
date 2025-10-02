@@ -52,7 +52,11 @@ RUN apk add --no-cache \
     nftables \
     kmod \
     iptables-legacy \
-    wireguard-tools
+    wireguard-tools \
+    dnsmasq \
+    ipset \
+    iproute2 \
+    bash
 
 RUN mkdir -p /etc/amnezia
 RUN ln -s /etc/wireguard /etc/amnezia/amneziawg
@@ -61,8 +65,12 @@ RUN ln -s /etc/wireguard /etc/amnezia/amneziawg
 RUN update-alternatives --install /usr/sbin/iptables iptables /usr/sbin/iptables-legacy 10 --slave /usr/sbin/iptables-restore iptables-restore /usr/sbin/iptables-legacy-restore --slave /usr/sbin/iptables-save iptables-save /usr/sbin/iptables-legacy-save
 RUN update-alternatives --install /usr/sbin/ip6tables ip6tables /usr/sbin/ip6tables-legacy 10 --slave /usr/sbin/ip6tables-restore ip6tables-restore /usr/sbin/ip6tables-legacy-restore --slave /usr/sbin/ip6tables-save ip6tables-save /usr/sbin/ip6tables-legacy-save
 
+# Configure dnsmasq for split tunneling
+RUN mkdir -p /etc/dnsmasq.d && \
+    echo "# dnsmasq will be configured by wg-easy" > /etc/dnsmasq.conf
+
 # Set Environment
-ENV DEBUG=Server,WireGuard,Database,CMD
+ENV DEBUG=Server,WireGuard,Database,CMD,SplitTunneling
 ENV PORT=51821
 ENV HOST=0.0.0.0
 ENV INSECURE=false

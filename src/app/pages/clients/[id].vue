@@ -112,6 +112,35 @@
             />
           </FormGroup>
           <FormGroup>
+            <FormHeading :description="$t('splitTunneling.description')">
+              {{ $t('splitTunneling.title') }}
+            </FormHeading>
+            <FormSwitchField
+              id="upstreamEnabled"
+              v-model="data.upstreamEnabled"
+              :label="$t('splitTunneling.enableSplitTunneling')"
+              :description="$t('splitTunneling.enableDescription')"
+            />
+            <div v-if="data.upstreamEnabled">
+              <label class="block text-sm font-medium mb-2">
+                {{ $t('splitTunneling.upstreamServer') }}
+              </label>
+              <SplitTunnelingUpstreamSelector
+                v-model="data.upstreamId"
+                :required="data.upstreamEnabled"
+              />
+            </div>
+          </FormGroup>
+          <FormGroup v-if="data.upstreamEnabled && data.upstreamId">
+            <FormHeading :description="$t('splitTunneling.rulesDescription')">
+              {{ $t('splitTunneling.routingRules') }}
+            </FormHeading>
+            <SplitTunnelingRuleEditor
+              :client-id="data.id"
+              @rules-changed="onRulesChanged"
+            />
+          </FormGroup>
+          <FormGroup>
             <FormHeading>{{ $t('form.actions') }}</FormHeading>
             <FormPrimaryActionField type="submit" :label="$t('form.save')" />
             <FormSecondaryActionField
@@ -189,5 +218,11 @@ const _deleteClient = useSubmit(
 
 function deleteClient() {
   return _deleteClient(undefined);
+}
+
+// Rules changed callback
+function onRulesChanged() {
+  // Optionally add notification or other logic
+  console.log('Split tunneling rules updated');
 }
 </script>
