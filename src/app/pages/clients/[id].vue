@@ -71,6 +71,21 @@
               :label="$t('client.upstreamEnabled')"
             />
             <template v-if="data.upstream.enabled">
+              <div class="col-span-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                <BaseSecondaryButton type="button" @click="triggerUpstreamImport">
+                  {{ $t('client.upstreamImport') }}
+                </BaseSecondaryButton>
+                <p class="text-sm text-gray-500 dark:text-neutral-300">
+                  {{ $t('client.upstreamImportDesc') }}
+                </p>
+                <input
+                  ref="upstreamFileInput"
+                  type="file"
+                  accept=".conf,text/plain"
+                  class="hidden"
+                  @change="onUpstreamFileChange"
+                />
+              </div>
               <FormNullTextField
                 id="upstream-host"
                 v-model="data.upstream.endpointHost"
@@ -99,27 +114,30 @@
                 :label="$t('client.upstreamClientKey')"
                 :description="$t('client.upstreamClientKeyDesc')"
               />
+              <div class="col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormNullTextField
+                  id="upstream-tunnel-address"
+                  v-model="data.upstream.tunnelAddress"
+                  :label="$t('client.upstreamTunnelAddress')"
+                  :description="$t('client.upstreamTunnelAddressDesc')"
+                />
+                <FormNumberField
+                  id="upstream-keepalive"
+                  v-model="data.upstream.persistentKeepalive"
+                  :label="$t('client.upstreamPersistentKeepalive')"
+                  :description="$t('client.upstreamPersistentKeepaliveDesc')"
+                />
+              </div>
               <FormArrayField
                 v-model="data.upstream.allowedIps"
                 name="upstreamAllowedIps"
+                class="col-span-2"
                 :label="$t('client.upstreamAllowedIps')"
                 :description="$t('client.upstreamAllowedIpsDesc')"
               />
-              <FormNullTextField
-                id="upstream-tunnel-address"
-                v-model="data.upstream.tunnelAddress"
-                :label="$t('client.upstreamTunnelAddress')"
-                :description="$t('client.upstreamTunnelAddressDesc')"
-              />
-              <FormNumberField
-                id="upstream-keepalive"
-                v-model="data.upstream.persistentKeepalive"
-                :label="$t('client.upstreamPersistentKeepalive')"
-                :description="$t('client.upstreamPersistentKeepaliveDesc')"
-              />
             </template>
           </FormGroup>
-          <FormGroup>
+          <FormGroup v-if="data?.upstream?.enabled">
             <FormHeading :description="$t('client.splitTunnelDesc')">
               {{ $t('client.splitTunnel') }}
             </FormHeading>
@@ -133,23 +151,27 @@
               <FormArrayField
                 v-model="data.splitTunnel.proxyDomains"
                 name="splitTunnelProxyDomains"
+                class="col-span-2"
                 :label="$t('client.splitTunnelProxyDomains')"
                 :description="$t('client.splitTunnelProxyDomainsDesc')"
               />
               <FormArrayField
                 v-model="data.splitTunnel.proxyCidrs"
                 name="splitTunnelProxyCidrs"
+                class="col-span-2"
                 :label="$t('client.splitTunnelProxyCidrs')"
               />
               <FormArrayField
                 v-model="data.splitTunnel.directDomains"
                 name="splitTunnelDirectDomains"
+                class="col-span-2"
                 :label="$t('client.splitTunnelDirectDomains')"
                 :description="$t('client.splitTunnelDirectDomainsDesc')"
               />
               <FormArrayField
                 v-model="data.splitTunnel.directCidrs"
                 name="splitTunnelDirectCidrs"
+                class="col-span-2"
                 :label="$t('client.splitTunnelDirectCidrs')"
               />
             </template>
@@ -236,6 +258,7 @@ import {
   normalizeSplitTunnelConfig,
   normalizeUpstreamConfig,
 } from '#shared/client-routing';
+import { parseWireGuardUpstreamConfig } from '#shared/wireguard-import';
 
 const authStore = useAuthStore();
 authStore.update();
@@ -248,6 +271,9 @@ const { data: _data, refresh } = await useFetch(`/api/client/${id}`, {
 });
 
 const { t } = useI18n();
+const toast = useToast();
+
+const upstreamFileInput = ref<HTMLInputElement | null>(null);
 
 const splitTunnelModeOptions = computed(() => [
   { value: 'direct', label: t('client.splitTunnelModeDirect') },
@@ -302,6 +328,47 @@ function submit() {
     splitTunnel: normalizeSplitTunnelConfig(data.value.splitTunnel),
   };
   return _submit(payload as never);
+}
+
+function triggerUpstreamImport() {
+  upstreamFileInput.value?.click();
+}
+
+async function onUpstreamFileChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  try {
+    const text = await file.text();
+    const imported = parseWireGuardUpstreamConfig(text);
+
+    if (!data.value) {
+      throw new Error('Client data not loaded');
+    }
+
+    data.value.upstream = normalizeUpstreamConfig({
+      ...data.value.upstream,
+      ...imported,
+      enabled: true,
+    });
+
+    toast.showToast({
+      type: 'success',
+      message: t('client.upstreamImportSuccess'),
+    });
+  } catch (error) {
+    console.error(error);
+    toast.showToast({
+      type: 'error',
+      message: t('client.upstreamImportFailed'),
+    });
+  } finally {
+    input.value = '';
+  }
 }
 
 async function revert() {

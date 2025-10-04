@@ -5,10 +5,8 @@ export const useAuthStore = defineStore('Auth', () => {
 
   async function getSession() {
     try {
-      const { data } = await useFetch('/api/session', {
-        method: 'get',
-      });
-      return data.value;
+      await update();
+      return userData.value;
     } catch {
       return null;
     }

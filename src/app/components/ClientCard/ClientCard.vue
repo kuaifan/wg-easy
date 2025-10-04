@@ -32,9 +32,9 @@
 
     <div class="flex items-center justify-end">
       <div
-        class="flex items-center justify-between gap-1 text-gray-400 dark:text-neutral-400"
+        class="flex items-center justify-between gap-2 text-gray-400 dark:text-neutral-400"
       >
-        <ClientCardSwitch :client="client" />
+        <ClientCardSwitch :client="client" class="mr-4" />
         <ClientCardEdit :client="client" />
         <ClientCardQRCode :client="client" />
         <ClientCardConfig :client="client" />
