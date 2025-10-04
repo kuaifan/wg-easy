@@ -13,5 +13,12 @@
 <script lang="ts" setup>
 defineProps<{ id: string; label: string; description?: string }>();
 
-const data = defineModel<number>();
+const data = defineModel<number | null>({
+  set(value) {
+    if (value === undefined || value === null || Number.isNaN(value)) {
+      return null;
+    }
+    return value;
+  },
+});
 </script>

@@ -169,7 +169,15 @@ function updatePassword() {
 
 const twofa = ref<{ key: string; qrcode: string } | null>(null);
 
-const _setup2fa = useSubmit(
+type TotpSetupResponse = { type: 'setup'; uri: string; key: string };
+type TotpCreatedResponse = { type: 'created' };
+type TotpDeletedResponse = { type: 'deleted' };
+
+const _setup2fa = useSubmit<
+  `/api/me/totp`,
+  { method: 'post' },
+  TotpSetupResponse
+>(
   `/api/me/totp`,
   {
     method: 'post',
@@ -197,7 +205,11 @@ async function setup2fa() {
 
 const code = ref<string>('');
 
-const _enable2fa = useSubmit(
+const _enable2fa = useSubmit<
+  `/api/me/totp`,
+  { method: 'post' },
+  TotpCreatedResponse
+>(
   `/api/me/totp`,
   {
     method: 'post',
@@ -222,7 +234,11 @@ async function enable2fa() {
 
 const disable2faPassword = ref('');
 
-const _disable2fa = useSubmit(
+const _disable2fa = useSubmit<
+  `/api/me/totp`,
+  { method: 'post' },
+  TotpDeletedResponse
+>(
   `/api/me/totp`,
   {
     method: 'post',

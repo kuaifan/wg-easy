@@ -8,7 +8,7 @@ services:
       - temp:/app/.nuxt/
       - temp1:/app/node_modules/
       - /lib/modules:/lib/modules:ro
-      # - ./data/:/etc/wireguard
+      - ./.data/:/etc/wireguard
     ports:
       - "51820:51820/udp"
       - "51821:51821/tcp"
@@ -21,6 +21,7 @@ services:
       - INIT_PORT=51820
       - INIT_USERNAME=testtest
       - INIT_PASSWORD=Qweasdyxcv!2
+      - DISABLE_IPV6=true
 
 # folders should be generated inside container
 volumes:

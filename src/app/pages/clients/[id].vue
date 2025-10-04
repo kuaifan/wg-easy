@@ -62,6 +62,99 @@
             />
           </FormGroup>
           <FormGroup>
+            <FormHeading :description="$t('client.upstreamDesc')">
+              {{ $t('client.upstream') }}
+            </FormHeading>
+            <FormSwitchField
+              id="upstream-enabled"
+              v-model="data.upstream.enabled"
+              :label="$t('client.upstreamEnabled')"
+            />
+            <template v-if="data.upstream.enabled">
+              <FormNullTextField
+                id="upstream-host"
+                v-model="data.upstream.endpointHost"
+                :label="$t('client.upstreamEndpoint')"
+                :description="$t('client.upstreamEndpointDesc')"
+              />
+              <FormNumberField
+                id="upstream-port"
+                v-model="data.upstream.endpointPort"
+                :label="$t('client.upstreamPort')"
+              />
+              <FormNullTextField
+                id="upstream-public-key"
+                v-model="data.upstream.publicKey"
+                :label="$t('client.upstreamPublicKey')"
+              />
+              <FormNullTextField
+                id="upstream-pre-shared-key"
+                v-model="data.upstream.preSharedKey"
+                :label="$t('client.upstreamPreSharedKey')"
+                :description="$t('client.upstreamPreSharedKeyDesc')"
+              />
+              <FormNullTextField
+                id="upstream-client-key"
+                v-model="data.upstream.clientPrivateKey"
+                :label="$t('client.upstreamClientKey')"
+                :description="$t('client.upstreamClientKeyDesc')"
+              />
+              <FormArrayField
+                v-model="data.upstream.allowedIps"
+                name="upstreamAllowedIps"
+                :label="$t('client.upstreamAllowedIps')"
+                :description="$t('client.upstreamAllowedIpsDesc')"
+              />
+              <FormNullTextField
+                id="upstream-tunnel-address"
+                v-model="data.upstream.tunnelAddress"
+                :label="$t('client.upstreamTunnelAddress')"
+                :description="$t('client.upstreamTunnelAddressDesc')"
+              />
+              <FormNumberField
+                id="upstream-keepalive"
+                v-model="data.upstream.persistentKeepalive"
+                :label="$t('client.upstreamPersistentKeepalive')"
+                :description="$t('client.upstreamPersistentKeepaliveDesc')"
+              />
+            </template>
+          </FormGroup>
+          <FormGroup>
+            <FormHeading :description="$t('client.splitTunnelDesc')">
+              {{ $t('client.splitTunnel') }}
+            </FormHeading>
+            <FormSelectField
+              id="split-tunnel-mode"
+              v-model="data.splitTunnel.mode"
+              :label="$t('client.splitTunnelMode')"
+              :options="splitTunnelModeOptions"
+            />
+            <template v-if="data.splitTunnel.mode === 'custom'">
+              <FormArrayField
+                v-model="data.splitTunnel.proxyDomains"
+                name="splitTunnelProxyDomains"
+                :label="$t('client.splitTunnelProxyDomains')"
+                :description="$t('client.splitTunnelProxyDomainsDesc')"
+              />
+              <FormArrayField
+                v-model="data.splitTunnel.proxyCidrs"
+                name="splitTunnelProxyCidrs"
+                :label="$t('client.splitTunnelProxyCidrs')"
+              />
+              <FormArrayField
+                v-model="data.splitTunnel.directDomains"
+                name="splitTunnelDirectDomains"
+                :label="$t('client.splitTunnelDirectDomains')"
+                :description="$t('client.splitTunnelDirectDomainsDesc')"
+              />
+              <FormArrayField
+                v-model="data.splitTunnel.directCidrs"
+                name="splitTunnelDirectCidrs"
+                :label="$t('client.splitTunnelDirectCidrs')"
+              />
+            </template>
+          </FormGroup>
+          <FormGroup>
             <FormHeading :description="$t('client.dnsDesc')">
               {{ $t('general.dns') }}
             </FormHeading>
@@ -139,6 +232,11 @@
 </template>
 
 <script lang="ts" setup>
+import {
+  normalizeSplitTunnelConfig,
+  normalizeUpstreamConfig,
+} from '#shared/client-routing';
+
 const authStore = useAuthStore();
 authStore.update();
 
@@ -148,7 +246,35 @@ const id = route.params.id as string;
 const { data: _data, refresh } = await useFetch(`/api/client/${id}`, {
   method: 'get',
 });
-const data = toRef(_data.value);
+
+const { t } = useI18n();
+
+const splitTunnelModeOptions = computed(() => [
+  { value: 'direct', label: t('client.splitTunnelModeDirect') },
+  { value: 'upstream', label: t('client.splitTunnelModeUpstream') },
+  { value: 'custom', label: t('client.splitTunnelModeCustom') },
+]);
+
+function applyClientDefaults(client: typeof _data.value) {
+  if (!client) {
+    return null;
+  }
+
+  const clone = structuredClone(client);
+  clone.upstream = normalizeUpstreamConfig(clone.upstream);
+  clone.splitTunnel = normalizeSplitTunnelConfig(clone.splitTunnel);
+  return clone;
+}
+
+const data = ref(applyClientDefaults(_data.value));
+
+watch(
+  _data,
+  (value) => {
+    data.value = applyClientDefaults(value);
+  },
+  { immediate: true }
+);
 
 const _submit = useSubmit(
   `/api/client/${id}`,
@@ -167,12 +293,20 @@ const _submit = useSubmit(
 );
 
 function submit() {
-  return _submit(data.value);
+  if (!data.value) {
+    return Promise.resolve();
+  }
+  const payload = {
+    ...data.value,
+    upstream: normalizeUpstreamConfig(data.value.upstream),
+    splitTunnel: normalizeSplitTunnelConfig(data.value.splitTunnel),
+  };
+  return _submit(payload as never);
 }
 
 async function revert() {
   await refresh();
-  data.value = toRef(_data.value).value;
+  data.value = applyClientDefaults(_data.value);
 }
 
 const _deleteClient = useSubmit(

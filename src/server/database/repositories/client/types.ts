@@ -2,13 +2,30 @@ import type { InferSelectModel } from 'drizzle-orm';
 import z from 'zod';
 
 import type { client } from './schema';
+import {
+  createDefaultSplitTunnelConfig,
+  createDefaultUpstreamConfig,
+  normalizeSplitTunnelConfig,
+  normalizeUpstreamConfig,
+} from '#shared/client-routing';
+import type {
+  ClientSplitTunnelConfig,
+  ClientUpstreamConfig,
+} from '#shared/client-routing';
 
-export type ClientType = InferSelectModel<typeof client>;
+type ClientRow = InferSelectModel<typeof client>;
 
-export type ClientNextIpType = Pick<ClientType, 'ipv4Address' | 'ipv6Address'>;
+export type ClientType = Omit<ClientRow, 'createdAt' | 'updatedAt'> & {
+  createdAt: Date;
+  updatedAt: Date;
+  upstream: ClientUpstreamConfig | null;
+  splitTunnel: ClientSplitTunnelConfig | null;
+};
+
+export type ClientNextIpType = Pick<ClientRow, 'ipv4Address' | 'ipv6Address'>;
 
 export type CreateClientType = Omit<
-  ClientType,
+  ClientRow,
   'createdAt' | 'updatedAt' | 'id'
 >;
 
@@ -43,6 +60,120 @@ const serverAllowedIps = z.array(AddressSchema, {
   message: t('zod.client.serverAllowedIps'),
 });
 
+const upstreamSchema = schemaForType<ClientUpstreamConfig>()(
+  z
+    .object({
+      enabled: EnabledSchema,
+      endpointHost: z
+        .string({ message: t('zod.client.upstreamHost') })
+        .min(1, { message: t('zod.client.upstreamHost') })
+        .pipe(safeStringRefine)
+        .nullable(),
+      endpointPort: PortSchema.nullable(),
+      publicKey: z
+        .string({ message: t('zod.client.upstreamPublicKey') })
+        .min(1, { message: t('zod.client.upstreamPublicKey') })
+        .pipe(safeStringRefine)
+        .nullable(),
+      preSharedKey: z
+        .string({ message: t('zod.client.upstreamPreSharedKey') })
+        .min(1, { message: t('zod.client.upstreamPreSharedKey') })
+        .pipe(safeStringRefine)
+        .nullable(),
+      clientPrivateKey: z
+        .string({ message: t('zod.client.upstreamClientKey') })
+        .min(1, { message: t('zod.client.upstreamClientKey') })
+        .pipe(safeStringRefine)
+        .nullable(),
+      allowedIps: z
+        .array(AddressSchema, {
+          message: t('zod.client.upstreamAllowedIps'),
+        })
+        .default([]),
+      tunnelAddress: AddressSchema.nullable(),
+      persistentKeepalive: PersistentKeepaliveSchema.nullable(),
+    })
+    .transform((value) => normalizeUpstreamConfig(value))
+    .superRefine((value, ctx) => {
+      if (!value.enabled) {
+        return;
+      }
+
+      if (!value.endpointHost) {
+        ctx.addIssue({
+          path: ['endpointHost'],
+          code: z.ZodIssueCode.custom,
+          message: t('zod.client.upstreamHost'),
+        });
+      }
+      if (!value.endpointPort) {
+        ctx.addIssue({
+          path: ['endpointPort'],
+          code: z.ZodIssueCode.custom,
+          message: t('zod.client.upstreamPort'),
+        });
+      }
+      if (!value.publicKey) {
+        ctx.addIssue({
+          path: ['publicKey'],
+          code: z.ZodIssueCode.custom,
+          message: t('zod.client.upstreamPublicKey'),
+        });
+      }
+      if (!value.clientPrivateKey) {
+        ctx.addIssue({
+          path: ['clientPrivateKey'],
+          code: z.ZodIssueCode.custom,
+          message: t('zod.client.upstreamClientKey'),
+        });
+      }
+      if (!value.tunnelAddress) {
+        ctx.addIssue({
+          path: ['tunnelAddress'],
+          code: z.ZodIssueCode.custom,
+          message: t('zod.client.upstreamTunnelAddress'),
+        });
+      }
+    })
+    .default(createDefaultUpstreamConfig())
+);
+
+const domainSchema = z
+  .string({ message: t('zod.client.splitTunnelDomain') })
+  .min(1, { message: t('zod.client.splitTunnelDomain') })
+  .pipe(safeStringRefine);
+
+const splitTunnelSchema = schemaForType<ClientSplitTunnelConfig>()(
+  z
+    .object({
+      mode: z.enum(['direct', 'upstream', 'custom'], {
+        message: t('zod.client.splitTunnelMode'),
+      }),
+      proxyDomains: z
+        .array(domainSchema, {
+          message: t('zod.client.splitTunnelDomain'),
+        })
+        .default([]),
+      proxyCidrs: z
+        .array(AddressSchema, {
+          message: t('zod.client.splitTunnelProxyCidrs'),
+        })
+        .default([]),
+      directDomains: z
+        .array(domainSchema, {
+          message: t('zod.client.splitTunnelDomain'),
+        })
+        .default([]),
+      directCidrs: z
+        .array(AddressSchema, {
+          message: t('zod.client.splitTunnelDirectCidrs'),
+        })
+        .default([]),
+    })
+    .transform((value) => normalizeSplitTunnelConfig(value))
+    .default(createDefaultSplitTunnelConfig())
+);
+
 export const ClientCreateSchema = z.object({
   name: name,
   expiresAt: expiresAt,
@@ -67,6 +198,8 @@ export const ClientUpdateSchema = schemaForType<UpdateClientType>()(
     persistentKeepalive: PersistentKeepaliveSchema,
     serverEndpoint: AddressSchema.nullable(),
     dns: DnsSchema.nullable(),
+    upstream: upstreamSchema,
+    splitTunnel: splitTunnelSchema,
   })
 );
 

@@ -2,10 +2,13 @@ import fs from 'node:fs/promises';
 import debug from 'debug';
 import { encodeQR } from 'qr';
 import type { InterfaceType } from '#db/repositories/interface/types';
+import { ClientRoutingManager } from './ClientRoutingManager';
 
 const WG_DEBUG = debug('WireGuard');
 
 class WireGuard {
+  #routingManager = new ClientRoutingManager();
+
   /**
    * Save and sync config
    */
@@ -23,6 +26,8 @@ class WireGuard {
   async #saveWireguardConfig(wgInterface: InterfaceType) {
     const clients = await Database.clients.getAll();
     const hooks = await Database.hooks.get();
+
+    await this.#routingManager.sync(clients);
 
     const result = [];
     result.push(

@@ -2,6 +2,10 @@ import { sql, relations } from 'drizzle-orm';
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { oneTimeLink, user, wgInterface } from '../../schema';
+import type {
+  ClientSplitTunnelConfig,
+  ClientUpstreamConfig,
+} from '#shared/client-routing';
 
 /** null means use value from userConfig */
 
@@ -38,6 +42,12 @@ export const client = sqliteTable('clients_table', {
   mtu: int().notNull(),
   dns: text({ mode: 'json' }).$type<string[]>(),
   serverEndpoint: text('server_endpoint'),
+  upstream: text('upstream', { mode: 'json' }).$type<
+    ClientUpstreamConfig | null
+  >(),
+  splitTunnel: text('split_tunnel', { mode: 'json' }).$type<
+    ClientSplitTunnelConfig | null
+  >(),
   enabled: int({ mode: 'boolean' }).notNull(),
   createdAt: text('created_at')
     .notNull()

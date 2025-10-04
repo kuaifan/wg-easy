@@ -6,6 +6,12 @@ import type {
   ClientCreateType,
   UpdateClientType,
 } from './types';
+import {
+  createDefaultSplitTunnelConfig,
+  createDefaultUpstreamConfig,
+  normalizeSplitTunnelConfig,
+  normalizeUpstreamConfig,
+} from '#shared/client-routing';
 import type { DBType } from '#db/sqlite';
 import { wgInterface, userConfig } from '#db/schema';
 
@@ -67,6 +73,8 @@ export class ClientService {
     const result = await this.#statements.findByUserId.execute({ userId });
     return result.map((row) => ({
       ...row,
+      upstream: normalizeUpstreamConfig(row.upstream),
+      splitTunnel: normalizeSplitTunnelConfig(row.splitTunnel),
       createdAt: new Date(row.createdAt),
       updatedAt: new Date(row.updatedAt),
     }));
@@ -79,6 +87,8 @@ export class ClientService {
     const result = await this.#statements.findAll.execute();
     return result.map((row) => ({
       ...row,
+      upstream: normalizeUpstreamConfig(row.upstream),
+      splitTunnel: normalizeSplitTunnelConfig(row.splitTunnel),
       createdAt: new Date(row.createdAt),
       updatedAt: new Date(row.updatedAt),
     }));
@@ -91,13 +101,26 @@ export class ClientService {
     const result = await this.#statements.findAllPublic.execute();
     return result.map((row) => ({
       ...row,
+      upstream: normalizeUpstreamConfig(row.upstream),
+      splitTunnel: normalizeSplitTunnelConfig(row.splitTunnel),
       createdAt: new Date(row.createdAt),
       updatedAt: new Date(row.updatedAt),
     }));
   }
 
-  get(id: ID) {
-    return this.#statements.findById.execute({ id });
+  async get(id: ID) {
+    const row = await this.#statements.findById.execute({ id });
+    if (!row) {
+      return row;
+    }
+
+    return {
+      ...row,
+      upstream: normalizeUpstreamConfig(row.upstream),
+      splitTunnel: normalizeSplitTunnelConfig(row.splitTunnel),
+      createdAt: new Date(row.createdAt),
+      updatedAt: new Date(row.updatedAt),
+    };
   }
 
   async create({ name, expiresAt }: ClientCreateType) {
@@ -148,6 +171,8 @@ export class ClientService {
           mtu: clientConfig.defaultMtu,
           persistentKeepalive: clientConfig.defaultPersistentKeepalive,
           serverAllowedIps: [],
+          upstream: createDefaultUpstreamConfig(),
+          splitTunnel: createDefaultSplitTunnelConfig(),
           enabled: true,
         })
         .returning({ clientId: client.id })
@@ -183,7 +208,15 @@ export class ClientService {
         throw new Error('IPv6 address is not within the CIDR range');
       }
 
-      await tx.update(client).set(data).where(eq(client.id, id)).execute();
+      await tx
+        .update(client)
+        .set({
+          ...data,
+          upstream: normalizeUpstreamConfig(data.upstream),
+          splitTunnel: normalizeSplitTunnelConfig(data.splitTunnel),
+        })
+        .where(eq(client.id, id))
+        .execute();
     });
   }
 
@@ -214,6 +247,8 @@ export class ClientService {
         dns: clientConfig.defaultDns,
         persistentKeepalive: clientConfig.defaultPersistentKeepalive,
         serverAllowedIps: [],
+        upstream: createDefaultUpstreamConfig(),
+        splitTunnel: createDefaultSplitTunnelConfig(),
         enabled,
       })
       .execute();

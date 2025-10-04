@@ -1,6 +1,7 @@
 <template>
-  <SelectRoot v-model="selected">
+  <SelectRoot v-model="selected" :name="id">
     <SelectTrigger
+      :id="id"
       class="inline-flex h-8 items-center justify-around gap-2 rounded bg-gray-200 px-3 text-sm leading-none dark:bg-neutral-500 dark:text-neutral-200"
       aria-label="Choose option"
     >
@@ -30,8 +31,9 @@
 </template>
 
 <script lang="ts" setup>
-defineProps<{
-  options: { label: string; value: string }[];
-}>();
+const { id, options } = withDefaults(
+  defineProps<{ options: { label: string; value: string }[]; id?: string }>(),
+  { id: undefined }
+);
 const selected = defineModel<string>();
 </script>

@@ -1,32 +1,13 @@
-import type {
-  NitroFetchRequest,
-  NitroFetchOptions,
-  TypedInternalResponse,
-  ExtractedRouteMethod,
-} from 'nitropack/types';
+import type { NitroFetchRequest, NitroFetchOptions } from 'nitropack/types';
 import { FetchError } from 'ofetch';
 
-type RevertFn<
-  R extends NitroFetchRequest,
-  T = unknown,
-  O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
-> = (
+type RevertFn<T = unknown> = (
   success: boolean,
-  data:
-    | TypedInternalResponse<
-        R,
-        T,
-        NitroFetchOptions<R> extends O ? 'get' : ExtractedRouteMethod<R, O>
-      >
-    | undefined
+  data: T | undefined
 ) => Promise<void>;
 
-type SubmitOpts<
-  R extends NitroFetchRequest,
-  T = unknown,
-  O extends NitroFetchOptions<R> = NitroFetchOptions<R>,
-> = {
-  revert: RevertFn<R, T, O>;
+type SubmitOpts<T = unknown> = {
+  revert: RevertFn<T>;
   successMsg?: string;
   noSuccessToast?: boolean;
 };
@@ -35,7 +16,7 @@ export function useSubmit<
   R extends NitroFetchRequest,
   O extends NitroFetchOptions<R> & { body?: never },
   T = unknown,
->(url: R, options: O, opts: SubmitOpts<R, T, O>) {
+>(url: R, options: O, opts: SubmitOpts<T>) {
   const toast = useToast();
 
   return async (data: unknown) => {
@@ -52,8 +33,7 @@ export function useSubmit<
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await opts.revert(true, res as any);
+      await opts.revert(true, res as T);
     } catch (e) {
       if (e instanceof FetchError) {
         toast.showToast({
