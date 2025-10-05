@@ -476,8 +476,10 @@ export class ClientRoutingManager {
       iptables: 'iptables',
       clientAddress: client.ipv4Address,
       chainName: chain4Name,
-      proxySetName: proxyTargets.ipv4Proxy.size > 0 ? proxySet4Name : null,
-      directSetName: proxyTargets.ipv4Direct.size > 0 ? directSet4Name : null,
+      proxySetName: proxySet4Name,
+      proxySetEnabled: proxyTargets.ipv4Proxy.size > 0,
+      directSetName: directSet4Name,
+      directSetEnabled: proxyTargets.ipv4Direct.size > 0,
       mark,
       proxyEntries: proxyTargets.ipv4Proxy,
       directEntries: proxyTargets.ipv4Direct,
@@ -488,8 +490,10 @@ export class ClientRoutingManager {
       iptables: 'ip6tables',
       clientAddress: client.ipv6Address,
       chainName: chain6Name,
-      proxySetName: proxyTargets.ipv6Proxy.size > 0 ? proxySet6Name : null,
-      directSetName: proxyTargets.ipv6Direct.size > 0 ? directSet6Name : null,
+      proxySetName: proxySet6Name,
+      proxySetEnabled: proxyTargets.ipv6Proxy.size > 0,
+      directSetName: directSet6Name,
+      directSetEnabled: proxyTargets.ipv6Direct.size > 0,
       mark,
       proxyEntries: proxyTargets.ipv6Proxy,
       directEntries: proxyTargets.ipv6Direct,
@@ -517,7 +521,9 @@ export class ClientRoutingManager {
     clientAddress,
     chainName,
     proxySetName,
+    proxySetEnabled,
     directSetName,
+    directSetEnabled,
     mark,
     proxyEntries,
     directEntries,
@@ -526,14 +532,18 @@ export class ClientRoutingManager {
     iptables: 'iptables' | 'ip6tables';
     clientAddress: string;
     chainName: string;
-    proxySetName: string | null;
-    directSetName: string | null;
+    proxySetName: string;
+    proxySetEnabled: boolean;
+    directSetName: string;
+    directSetEnabled: boolean;
     mark: number;
     proxyEntries: Set<string>;
     directEntries: Set<string>;
     family: 'inet' | 'inet6';
   }) {
-    if (!proxySetName && !directSetName) {
+    if (!proxySetEnabled && !directSetEnabled) {
+      await this.#destroyIpSetByName(proxySetName);
+      await this.#destroyIpSetByName(directSetName);
       await run(`${iptables} -t mangle -D PREROUTING -s ${clientAddress} -j ${chainName} 2>/dev/null || true`);
       await run(`${iptables} -t mangle -F ${chainName} 2>/dev/null || true`);
       await run(`${iptables} -t mangle -X ${chainName} 2>/dev/null || true`);
@@ -545,7 +555,7 @@ export class ClientRoutingManager {
     await run(`${iptables} -t mangle -D PREROUTING -s ${clientAddress} -j ${chainName} 2>/dev/null || true`);
     await run(`${iptables} -t mangle -A PREROUTING -s ${clientAddress} -j ${chainName}`);
 
-    if (directSetName) {
+    if (directSetEnabled) {
       await this.#syncIpSet({ name: directSetName, family, entries: directEntries });
       await run(
         `${iptables} -t mangle -A ${chainName} -m set --match-set ${directSetName} dst -j RETURN`,
@@ -554,7 +564,7 @@ export class ClientRoutingManager {
       await this.#destroyIpSetByName(directSetName);
     }
 
-    if (proxySetName) {
+    if (proxySetEnabled) {
       await this.#syncIpSet({ name: proxySetName, family, entries: proxyEntries });
       await run(
         `${iptables} -t mangle -A ${chainName} -m set --match-set ${proxySetName} dst -j MARK --set-mark ${mark}`,
