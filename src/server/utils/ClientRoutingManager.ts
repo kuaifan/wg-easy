@@ -111,21 +111,25 @@ function splitAllowedIps(allowedIps: string[]) {
 
 async function resolveDomain(domain: string) {
   const result = { ipv4: new Set<string>(), ipv6: new Set<string>() };
-  const output = await exec(`getent ahosts ${domain} || true`);
-  if (!output) {
-    return result;
-  }
-  const lines = output.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const [address] = trimmed.split(/\s+/);
-    if (!address) continue;
-    if (address.includes(':')) {
-      result.ipv6.add(address);
-    } else {
-      result.ipv4.add(address);
+  const parseOutput = (output: string | null | undefined) => {
+    if (!output) return;
+    const lines = output.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      const [address] = trimmed.split(/\s+/);
+      if (!address) continue;
+      if (address.includes(':')) {
+        result.ipv6.add(address);
+      } else {
+        result.ipv4.add(address);
+      }
     }
+  };
+
+  parseOutput(await exec(`getent ahosts ${domain} || true`));
+  if (result.ipv4.size === 0 && result.ipv6.size === 0) {
+    parseOutput(await exec(`getent hosts ${domain} || true`));
   }
   return result;
 }
