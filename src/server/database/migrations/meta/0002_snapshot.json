@@ -1,6 +1,6 @@
 {
-  "id": "78de2e52-c4a8-4900-86c5-92f34739623a",
-  "prevId": "dae61656-1107-4729-ac83-f43d4cab3881",
+  "id": "3b3e76a6-dda3-407b-af6b-8d98937dbfb5",
+  "prevId": "78de2e52-c4a8-4900-86c5-92f34739623a",
   "version": "6",
   "dialect": "sqlite",
   "tables": {
@@ -146,6 +146,20 @@
         },
         "server_endpoint": {
           "name": "server_endpoint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "upstream": {
+          "name": "upstream",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "split_tunnel": {
+          "name": "split_tunnel",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
