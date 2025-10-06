@@ -140,7 +140,6 @@ const upstreamSchema = schemaForType<ClientUpstreamConfig>()(
 
 const splitTunnelRuleSchema = z
   .string({ message: t('zod.client.splitTunnelDomain') })
-  .min(1, { message: t('zod.client.splitTunnelDomain') })
   .pipe(safeStringRefine);
 
 const splitTunnelSchema = schemaForType<ClientSplitTunnelConfig>()(

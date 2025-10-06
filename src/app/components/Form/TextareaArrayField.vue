@@ -44,6 +44,7 @@ function toTextareaValue(value: string[] | undefined) {
   if (!value || value.length === 0) {
     return '';
   }
+
   return value.join('\n');
 }
 
@@ -52,15 +53,13 @@ function parseTextareaValue(value: string) {
     return [];
   }
 
-  const lines = value.split(/\r?\n/);
+  const normalized = value.replace(/\r?\n/g, '\n').trim();
 
-  // Remove trailing blank lines so users can separate sections without
-  // accidentally growing the list with empty entries at the end.
-  while (lines.length > 0 && lines[lines.length - 1].trim().length === 0) {
-    lines.pop();
+  if (!normalized) {
+    return [];
   }
 
-  return lines.map((line) => line.trim());
+  return normalized.split('\n');
 }
 
 const localValue = ref(toTextareaValue(data.value));

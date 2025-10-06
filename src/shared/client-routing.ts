@@ -81,10 +81,36 @@ export function normalizeSplitTunnelConfig(
     return createDefaultSplitTunnelConfig();
   }
 
-  const normalizeList = (input: unknown[]) =>
-    input
-      .map((entry) => normalizeOptionalString(entry) ?? '')
-      .filter((entry) => entry.length > 0);
+  const normalizeList = (input: unknown[]) => {
+    if (!Array.isArray(input)) {
+      return [];
+    }
+
+    const normalized: string[] = [];
+
+    for (const entry of input) {
+      if (typeof entry !== 'string') {
+        continue;
+      }
+
+      normalized.push(entry.replace(/\r?\n/g, '\n'));
+    }
+
+    const isBoundaryBlank = (value: string) => value.trim().length === 0;
+
+    let start = 0;
+    let end = normalized.length;
+
+    while (start < end && isBoundaryBlank(normalized[start])) {
+      start += 1;
+    }
+
+    while (end > start && isBoundaryBlank(normalized[end - 1])) {
+      end -= 1;
+    }
+
+    return normalized.slice(start, end);
+  };
 
   const mode: ClientSplitTunnelMode =
     value.mode === 'custom' || value.mode === 'upstream' || value.mode === 'direct'
