@@ -138,7 +138,7 @@ const upstreamSchema = schemaForType<ClientUpstreamConfig>()(
     .default(createDefaultUpstreamConfig())
 );
 
-const domainSchema = z
+const splitTunnelRuleSchema = z
   .string({ message: t('zod.client.splitTunnelDomain') })
   .min(1, { message: t('zod.client.splitTunnelDomain') })
   .pipe(safeStringRefine);
@@ -149,24 +149,14 @@ const splitTunnelSchema = schemaForType<ClientSplitTunnelConfig>()(
       mode: z.enum(['direct', 'upstream', 'custom'], {
         message: t('zod.client.splitTunnelMode'),
       }),
-      proxyDomains: z
-        .array(domainSchema, {
+      proxyRules: z
+        .array(splitTunnelRuleSchema, {
           message: t('zod.client.splitTunnelDomain'),
         })
         .default([]),
-      proxyCidrs: z
-        .array(AddressSchema, {
-          message: t('zod.client.splitTunnelProxyCidrs'),
-        })
-        .default([]),
-      directDomains: z
-        .array(domainSchema, {
+      directRules: z
+        .array(splitTunnelRuleSchema, {
           message: t('zod.client.splitTunnelDomain'),
-        })
-        .default([]),
-      directCidrs: z
-        .array(AddressSchema, {
-          message: t('zod.client.splitTunnelDirectCidrs'),
         })
         .default([]),
     })

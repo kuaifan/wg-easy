@@ -143,11 +143,11 @@
     "splitTunnelModeDirect": "Send everything directly",
     "splitTunnelModeUpstream": "Send everything through upstream",
     "splitTunnelModeCustom": "Use custom rules",
-    "splitTunnelProxyDomains": "Domains via upstream",
-    "splitTunnelProxyDomainsDesc": "Requests to these domains are forwarded through the upstream tunnel",
+    "splitTunnelProxyDomains": "Domains or CIDRs via upstream",
+    "splitTunnelProxyDomainsDesc": "Requests to these domains or CIDRs are forwarded through the upstream tunnel.",
     "splitTunnelProxyCidrs": "CIDR ranges via upstream",
-    "splitTunnelDirectDomains": "Domains kept direct",
-    "splitTunnelDirectDomainsDesc": "Requests to these domains stay on the direct path",
+    "splitTunnelDirectDomains": "Domains or CIDRs kept direct",
+    "splitTunnelDirectDomainsDesc": "Requests to these domains or CIDRs stay on the direct path.",
     "splitTunnelDirectCidrs": "CIDR ranges kept direct"
   },
   "dialog": {
@@ -232,7 +232,7 @@
       "upstreamAllowedIps": "Upstream allowed IPs",
       "upstreamTunnelAddress": "Upstream tunnel address",
       "splitTunnelMode": "Split tunnel mode",
-      "splitTunnelDomain": "Split tunnel domain",
+      "splitTunnelDomain": "Split tunnel rule",
       "splitTunnelProxyCidrs": "Split tunnel proxy CIDRs",
       "splitTunnelDirectCidrs": "Split tunnel direct CIDRs"
     },

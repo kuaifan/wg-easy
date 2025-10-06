@@ -14,10 +14,8 @@ export type ClientSplitTunnelMode = 'direct' | 'upstream' | 'custom';
 
 export type ClientSplitTunnelConfig = {
   mode: ClientSplitTunnelMode;
-  proxyDomains: string[];
-  proxyCidrs: string[];
-  directDomains: string[];
-  directCidrs: string[];
+  proxyRules: string[];
+  directRules: string[];
 };
 
 export function createDefaultUpstreamConfig(): ClientUpstreamConfig {
@@ -37,10 +35,8 @@ export function createDefaultUpstreamConfig(): ClientUpstreamConfig {
 export function createDefaultSplitTunnelConfig(): ClientSplitTunnelConfig {
   return {
     mode: 'direct',
-    proxyDomains: [],
-    proxyCidrs: [],
-    directDomains: [],
-    directCidrs: [],
+    proxyRules: [],
+    directRules: [],
   };
 }
 
@@ -95,21 +91,48 @@ export function normalizeSplitTunnelConfig(
       ? value.mode
       : 'direct';
 
+  const {
+    proxyRules: currentProxyRules,
+    directRules: currentDirectRules,
+    proxyDomains,
+    proxyCidrs,
+    directDomains,
+    directCidrs,
+    ...rest
+  } = (value ?? {}) as Partial<ClientSplitTunnelConfig> & {
+    proxyDomains?: unknown[];
+    proxyCidrs?: unknown[];
+    directDomains?: unknown[];
+    directCidrs?: unknown[];
+  };
+
+  const legacyProxyRules = [
+    ...(Array.isArray(proxyDomains) ? proxyDomains : []),
+    ...(Array.isArray(proxyCidrs) ? proxyCidrs : []),
+  ];
+
+  const legacyDirectRules = [
+    ...(Array.isArray(directDomains) ? directDomains : []),
+    ...(Array.isArray(directCidrs) ? directCidrs : []),
+  ];
+
+  const proxyRules = Array.isArray(currentProxyRules)
+    ? normalizeList(currentProxyRules)
+    : legacyProxyRules.length > 0
+      ? normalizeList(legacyProxyRules)
+      : [];
+
+  const directRules = Array.isArray(currentDirectRules)
+    ? normalizeList(currentDirectRules)
+    : legacyDirectRules.length > 0
+      ? normalizeList(legacyDirectRules)
+      : [];
+
   return {
     ...createDefaultSplitTunnelConfig(),
-    ...value,
+    ...rest,
     mode,
-    proxyDomains: Array.isArray(value.proxyDomains)
-      ? normalizeList(value.proxyDomains)
-      : [],
-    proxyCidrs: Array.isArray(value.proxyCidrs)
-      ? normalizeList(value.proxyCidrs)
-      : [],
-    directDomains: Array.isArray(value.directDomains)
-      ? normalizeList(value.directDomains)
-      : [],
-    directCidrs: Array.isArray(value.directCidrs)
-      ? normalizeList(value.directCidrs)
-      : [],
+    proxyRules,
+    directRules,
   };
 }

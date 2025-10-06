@@ -144,11 +144,11 @@
     "splitTunnelModeDirect": "全部直連",
     "splitTunnelModeUpstream": "全部走上游",
     "splitTunnelModeCustom": "自訂規則",
-    "splitTunnelProxyDomains": "經上游的網域",
-    "splitTunnelProxyDomainsDesc": "這些網域的請求會透過上游隧道轉送",
+    "splitTunnelProxyDomains": "經上游的網域或 CIDR",
+    "splitTunnelProxyDomainsDesc": "這些網域或 CIDR 的請求會透過上游隧道轉送",
     "splitTunnelProxyCidrs": "經上游的 CIDR",
-    "splitTunnelDirectDomains": "維持直連的網域",
-    "splitTunnelDirectDomainsDesc": "這些網域的請求會維持直連",
+    "splitTunnelDirectDomains": "維持直連的網域或 CIDR",
+    "splitTunnelDirectDomainsDesc": "這些網域或 CIDR 的請求會維持直連",
     "splitTunnelDirectCidrs": "維持直連的 CIDR"
   },
   "dialog": {
@@ -233,7 +233,7 @@
       "upstreamAllowedIps": "上游允許的 IP",
       "upstreamTunnelAddress": "上游隧道位址",
       "splitTunnelMode": "分流模式",
-      "splitTunnelDomain": "分流網域",
+      "splitTunnelDomain": "分流規則",
       "splitTunnelProxyCidrs": "上游 CIDR 範圍",
       "splitTunnelDirectCidrs": "直連 CIDR 範圍"
     },

@@ -148,31 +148,19 @@
               :options="splitTunnelModeOptions"
             />
             <template v-if="data.splitTunnel.mode === 'custom'">
-              <FormArrayField
-                v-model="data.splitTunnel.proxyDomains"
-                name="splitTunnelProxyDomains"
+              <FormTextareaArrayField
+                v-model="data.splitTunnel.proxyRules"
+                name="splitTunnelProxyRules"
                 class="col-span-2"
                 :label="$t('client.splitTunnelProxyDomains')"
                 :description="$t('client.splitTunnelProxyDomainsDesc')"
               />
-              <FormArrayField
-                v-model="data.splitTunnel.proxyCidrs"
-                name="splitTunnelProxyCidrs"
-                class="col-span-2"
-                :label="$t('client.splitTunnelProxyCidrs')"
-              />
-              <FormArrayField
-                v-model="data.splitTunnel.directDomains"
-                name="splitTunnelDirectDomains"
+              <FormTextareaArrayField
+                v-model="data.splitTunnel.directRules"
+                name="splitTunnelDirectRules"
                 class="col-span-2"
                 :label="$t('client.splitTunnelDirectDomains')"
                 :description="$t('client.splitTunnelDirectDomainsDesc')"
-              />
-              <FormArrayField
-                v-model="data.splitTunnel.directCidrs"
-                name="splitTunnelDirectCidrs"
-                class="col-span-2"
-                :label="$t('client.splitTunnelDirectCidrs')"
               />
             </template>
           </FormGroup>

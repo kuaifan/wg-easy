@@ -143,11 +143,11 @@
     "splitTunnelModeDirect": "全部直连",
     "splitTunnelModeUpstream": "全部走上游",
     "splitTunnelModeCustom": "自定义规则",
-    "splitTunnelProxyDomains": "经上游的域名",
-    "splitTunnelProxyDomainsDesc": "这些域名的请求会通过上游隧道转发",
+    "splitTunnelProxyDomains": "经上游的域名或 CIDR",
+    "splitTunnelProxyDomainsDesc": "这些域名或 CIDR 的请求会通过上游隧道转发",
     "splitTunnelProxyCidrs": "经上游的 CIDR",
-    "splitTunnelDirectDomains": "保持直连的域名",
-    "splitTunnelDirectDomainsDesc": "这些域名的请求保持直连",
+    "splitTunnelDirectDomains": "保持直连的域名或 CIDR",
+    "splitTunnelDirectDomainsDesc": "这些域名或 CIDR 的请求保持直连",
     "splitTunnelDirectCidrs": "保持直连的 CIDR"
   },
   "dialog": {
@@ -232,7 +232,7 @@
       "upstreamAllowedIps": "上游允许的 IP",
       "upstreamTunnelAddress": "上游隧道地址",
       "splitTunnelMode": "分流模式",
-      "splitTunnelDomain": "分流域名",
+      "splitTunnelDomain": "分流规则",
       "splitTunnelProxyCidrs": "经上游的 CIDR",
       "splitTunnelDirectCidrs": "直连 CIDR"
     },

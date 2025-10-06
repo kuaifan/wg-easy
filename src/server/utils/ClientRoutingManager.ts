@@ -16,6 +16,7 @@ const ROUTING_PRIORITY_BASE = 1000;
 const ROUTING_MARK_BASE = 0xc000;
 
 const IPV4_REGEX = /^(?:\d{1,3}\.){3}\d{1,3}(?:\/\d{1,2})?$/;
+const COMMENT_REGEX = /^\s*#/;
 
 function ensureArray<T>(value: T[] | null | undefined): T[] {
   if (!Array.isArray(value)) {
@@ -216,10 +217,8 @@ export class ClientRoutingManager {
     if (client.upstream?.enabled) {
       const splitTunnel = client.splitTunnel ?? {
         mode: 'direct',
-        proxyCidrs: [],
-        proxyDomains: [],
-        directCidrs: [],
-        directDomains: [],
+        proxyRules: [],
+        directRules: [],
       };
 
       const shouldProcessSplitTunnel = splitTunnel.mode !== 'direct';
@@ -417,32 +416,58 @@ export class ClientRoutingManager {
       ipv6Direct: new Set<string>(),
     };
 
-    for (const cidr of ensureArray(splitTunnel.proxyCidrs)) {
-      if (cidr.includes(':')) {
-        proxyTargets.ipv6Proxy.add(cidr);
-      } else if (IPV4_REGEX.test(cidr)) {
-        proxyTargets.ipv4Proxy.add(cidr);
+    const handleRule = async (
+      rule: string,
+      target: 'proxy' | 'direct',
+    ) => {
+      const trimmed = rule.trim();
+      if (!trimmed || COMMENT_REGEX.test(trimmed)) {
+        return;
       }
-    }
 
-    for (const cidr of ensureArray(splitTunnel.directCidrs)) {
-      if (cidr.includes(':')) {
-        proxyTargets.ipv6Direct.add(cidr);
-      } else if (IPV4_REGEX.test(cidr)) {
-        proxyTargets.ipv4Direct.add(cidr);
+      const add = (family: 'ipv4' | 'ipv6', entry: string) => {
+        if (family === 'ipv4') {
+          if (target === 'proxy') {
+            proxyTargets.ipv4Proxy.add(entry);
+          } else {
+            proxyTargets.ipv4Direct.add(entry);
+          }
+        } else if (target === 'proxy') {
+          proxyTargets.ipv6Proxy.add(entry);
+        } else {
+          proxyTargets.ipv6Direct.add(entry);
+        }
+      };
+
+      if (trimmed.includes(':')) {
+        if (trimmed.includes('/')) {
+          add('ipv6', trimmed);
+        } else {
+          add('ipv6', `${trimmed}/128`);
+        }
+        return;
       }
+
+      if (IPV4_REGEX.test(trimmed)) {
+        if (trimmed.includes('/')) {
+          add('ipv4', trimmed);
+        } else {
+          add('ipv4', `${trimmed}/32`);
+        }
+        return;
+      }
+
+      const resolved = await resolveDomain(trimmed);
+      resolved.ipv4.forEach((entry) => add('ipv4', `${entry}/32`));
+      resolved.ipv6.forEach((entry) => add('ipv6', `${entry}/128`));
+    };
+
+    for (const rule of ensureArray(splitTunnel.proxyRules)) {
+      await handleRule(rule, 'proxy');
     }
 
-    for (const domain of ensureArray(splitTunnel.proxyDomains)) {
-      const resolved = await resolveDomain(domain);
-      resolved.ipv4.forEach((entry) => proxyTargets.ipv4Proxy.add(`${entry}/32`));
-      resolved.ipv6.forEach((entry) => proxyTargets.ipv6Proxy.add(`${entry}/128`));
-    }
-
-    for (const domain of ensureArray(splitTunnel.directDomains)) {
-      const resolved = await resolveDomain(domain);
-      resolved.ipv4.forEach((entry) => proxyTargets.ipv4Direct.add(`${entry}/32`));
-      resolved.ipv6.forEach((entry) => proxyTargets.ipv6Direct.add(`${entry}/128`));
+    for (const rule of ensureArray(splitTunnel.directRules)) {
+      await handleRule(rule, 'direct');
     }
 
     return proxyTargets;
