@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto max-w-4xl p-4">
       <div class="flex flex-col gap-4 lg:flex-row">
         <div class="rounded-lg bg-white p-4 lg:w-64 dark:bg-neutral-700">
           <NuxtLink to="/admin">

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header class="mx-auto mt-4 flex max-w-3xl flex-col justify-center">
+    <header class="mx-auto mt-4 flex max-w-4xl flex-col justify-center">
       <div
         class="mb-5 w-full"
         :class="
