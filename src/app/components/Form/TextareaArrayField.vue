@@ -48,10 +48,19 @@ function toTextareaValue(value: string[] | undefined) {
 }
 
 function parseTextareaValue(value: string) {
-  return value
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  if (!value) {
+    return [];
+  }
+
+  const lines = value.split(/\r?\n/);
+
+  // Remove trailing blank lines so users can separate sections without
+  // accidentally growing the list with empty entries at the end.
+  while (lines.length > 0 && lines[lines.length - 1].trim().length === 0) {
+    lines.pop();
+  }
+
+  return lines.map((line) => line.trim());
 }
 
 const localValue = ref(toTextareaValue(data.value));

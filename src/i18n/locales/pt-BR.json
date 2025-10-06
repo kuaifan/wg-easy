@@ -146,9 +146,11 @@
     "splitTunnelProxyDomains": "Domains or CIDRs via upstream",
     "splitTunnelProxyDomainsDesc": "Requests to these domains or CIDRs are forwarded through the upstream tunnel.",
     "splitTunnelProxyCidrs": "CIDR ranges via upstream",
+    "splitTunnelProxyDomainsPlaceholder": "Example:\nexample.com\ncdn.example.com\n10.0.0.0/24",
     "splitTunnelDirectDomains": "Domains or CIDRs kept direct",
     "splitTunnelDirectDomainsDesc": "Requests to these domains or CIDRs stay on the direct path.",
-    "splitTunnelDirectCidrs": "CIDR ranges kept direct"
+    "splitTunnelDirectCidrs": "CIDR ranges kept direct",
+    "splitTunnelDirectDomainsPlaceholder": "Example:\nintranet.local\nprinter.local\n192.168.0.0/16"
   },
   "dialog": {
     "change": "Mudar",

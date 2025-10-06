@@ -146,9 +146,11 @@
     "splitTunnelProxyDomains": "经上游的域名或 CIDR",
     "splitTunnelProxyDomainsDesc": "这些域名或 CIDR 的请求会通过上游隧道转发",
     "splitTunnelProxyCidrs": "经上游的 CIDR",
+    "splitTunnelProxyDomainsPlaceholder": "示例：\nexample.com\ncdn.example.com\n10.0.0.0/24",
     "splitTunnelDirectDomains": "保持直连的域名或 CIDR",
     "splitTunnelDirectDomainsDesc": "这些域名或 CIDR 的请求保持直连",
-    "splitTunnelDirectCidrs": "保持直连的 CIDR"
+    "splitTunnelDirectCidrs": "保持直连的 CIDR",
+    "splitTunnelDirectDomainsPlaceholder": "示例：\nintranet.local\nprinter.local\n192.168.0.0/16"
   },
   "dialog": {
     "change": "确认修改",

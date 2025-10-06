@@ -154,6 +154,7 @@
                 class="col-span-2"
                 :label="$t('client.splitTunnelProxyDomains')"
                 :description="$t('client.splitTunnelProxyDomainsDesc')"
+                :placeholder="$t('client.splitTunnelProxyDomainsPlaceholder')"
               />
               <FormTextareaArrayField
                 v-model="data.splitTunnel.directRules"
@@ -161,6 +162,7 @@
                 class="col-span-2"
                 :label="$t('client.splitTunnelDirectDomains')"
                 :description="$t('client.splitTunnelDirectDomainsDesc')"
+                :placeholder="$t('client.splitTunnelDirectDomainsPlaceholder')"
               />
             </template>
           </FormGroup>
