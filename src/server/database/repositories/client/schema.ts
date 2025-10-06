@@ -1,11 +1,49 @@
 import { sql, relations } from 'drizzle-orm';
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { customType, int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { oneTimeLink, user, wgInterface } from '../../schema';
 import type {
   ClientSplitTunnelConfig,
   ClientUpstreamConfig,
 } from '#shared/client-routing';
+
+const createNullableJsonType = <T>() =>
+  customType<{ data: T | null; driverData: string }>({
+    dataType() {
+      return 'text';
+    },
+    toDriver(value) {
+      if (value === undefined || value === null) {
+        return 'null';
+      }
+      return JSON.stringify(value);
+    },
+    fromDriver(value) {
+      if (value === undefined || value === null) {
+        return null;
+      }
+
+      if (typeof value !== 'string') {
+        return value as T | null;
+      }
+
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return null;
+      }
+
+      try {
+        return JSON.parse(trimmed) as T;
+      } catch (error) {
+        throw new Error(
+          `Failed to parse JSON value "${value}" from database column, expected valid JSON`,
+        );
+      }
+    },
+  });
+
+const upstreamJsonColumn = createNullableJsonType<ClientUpstreamConfig>();
+const splitTunnelJsonColumn = createNullableJsonType<ClientSplitTunnelConfig>();
 
 /** null means use value from userConfig */
 
@@ -42,12 +80,8 @@ export const client = sqliteTable('clients_table', {
   mtu: int().notNull(),
   dns: text({ mode: 'json' }).$type<string[]>(),
   serverEndpoint: text('server_endpoint'),
-  upstream: text('upstream', { mode: 'json' }).$type<
-    ClientUpstreamConfig | null
-  >(),
-  splitTunnel: text('split_tunnel', { mode: 'json' }).$type<
-    ClientSplitTunnelConfig | null
-  >(),
+  upstream: upstreamJsonColumn('upstream').default('null'),
+  splitTunnel: splitTunnelJsonColumn('split_tunnel').default('null'),
   enabled: int({ mode: 'boolean' }).notNull(),
   createdAt: text('created_at')
     .notNull()
