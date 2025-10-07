@@ -1,6 +1,6 @@
 export default defineNitroPlugin((nitroApp) => {
   console.log(`====================================================`);
-  console.log(`    wg-easy - https://github.com/wg-easy/wg-easy    `);
+  console.log(`    wg-easy - https://github.com/kuaifan/wg-easy    `);
   console.log(`====================================================`);
   console.log(`| wg-easy:  ${RELEASE.padEnd(38)} |`);
   console.log(`| Node:     ${process.version.padEnd(38)} |`);

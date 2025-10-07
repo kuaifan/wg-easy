@@ -13,6 +13,12 @@
 
 详细更新记录见 [CHANGELOG-UPSTREAM.md](./CHANGELOG-UPSTREAM.md)。
 
+<p align="center">
+  <img src="./assets/fork/1.png" width="802" alt="wg-easy Screenshot" />
+  <img src="./assets/fork/2.png" width="802" alt="wg-easy Screenshot" />
+  <img src="./assets/fork/3.png" width="802" alt="wg-easy Screenshot" />
+</p>
+
 ## 安装指南
 
 以下步骤基于官方文档的基础安装流程，示例目录为 `/etc/docker/containers/wg-easy`，可按需调整。
