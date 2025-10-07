@@ -15,6 +15,15 @@ You have found the easiest way to install & manage WireGuard on any Linux host!
   <img src="./assets/screenshot.png" width="802" alt="wg-easy Screenshot" />
 </p>
 
+## 核心更新
+
+- 新增客户端上游服务器分流配置，支持导入 WireGuard `.conf` 并自动清理遗留 ipset。
+- 自定义分流模式提供代理/直连规则文本域、占位示例与多语言说明。
+- 客户端卡片支持一键复制配置，兼容现代与回退剪贴板能力。
+- 默认随机分配客户端内网网段，优化无人值守部署。
+
+更多细节请见 [CHANGELOG-FORK.md](./CHANGELOG-FORK.md)。
+
 ## Features
 
 - All-in-one: WireGuard + Web UI.
