@@ -68,7 +68,7 @@
                 {{ $t('me.enable2faDesc') }}
               </p>
               <div class="mt-2 flex flex-col gap-2">
-                <img :src="twofa.qrcode" size="128" class="bg-white" />
+                <img :src="twofa.qrcode" class="bg-white max-w-48" />
                 <FormTextField
                   id="2fakey"
                   :model-value="twofa.key"
