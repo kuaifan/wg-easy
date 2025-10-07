@@ -148,6 +148,14 @@
               :options="splitTunnelModeOptions"
             />
             <template v-if="data.splitTunnel.mode === 'custom'">
+              <div
+                class="col-span-2 rounded-lg border-2 border-gray-100 bg-gray-50 p-4 text-sm text-gray-600 dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-200"
+              >
+                <p class="font-semibold text-gray-800 dark:text-neutral-100">
+                  {{ $t('client.splitTunnelModeCustom') }}
+                </p>
+                <p class="mt-1">{{ $t('client.splitTunnelCustomDesc') }}</p>
+              </div>
               <FormTextareaArrayField
                 v-model="data.splitTunnel.proxyRules"
                 name="splitTunnelProxyRules"
