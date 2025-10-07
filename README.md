@@ -1,134 +1,64 @@
-# WireGuard Easy
+# WireGuard Easy Fork
 
-[![Build & Publish latest Image](https://github.com/wg-easy/wg-easy/actions/workflows/deploy.yml/badge.svg?branch=production)](https://github.com/wg-easy/wg-easy/actions/workflows/deploy.yml)
-[![Lint](https://github.com/wg-easy/wg-easy/actions/workflows/lint.yml/badge.svg?branch=master)](https://github.com/wg-easy/wg-easy/actions/workflows/lint.yml)
-[![GitHub Stars](https://img.shields.io/github/stars/wg-easy/wg-easy)](https://github.com/wg-easy/wg-easy/stargazers)
-[![License](https://img.shields.io/github/license/wg-easy/wg-easy)](LICENSE)
-[![GitHub Release](https://img.shields.io/github/v/release/wg-easy/wg-easy)](https://github.com/wg-easy/wg-easy/releases/latest)
-[![Image Pulls](https://img.shields.io/badge/image_pulls-12M+-blue)](https://github.com/wg-easy/wg-easy/pkgs/container/wg-easy)
+[![Build & Publish latest Image](https://github.com/kuaifan/wg-easy/actions/workflows/deploy.yml/badge.svg?branch=production)](https://github.com/kuaifan/wg-easy/actions/workflows/deploy.yml)
+[![License](https://img.shields.io/github/license/kuaifan/wg-easy)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/kuaifan/wg-easy)](https://github.com/kuaifan/wg-easy/releases/latest)
 
-You have found the easiest way to install & manage WireGuard on any Linux host!
+本仓库基于官方项目 [wg-easy/wg-easy](https://github.com/wg-easy/wg-easy) 进行二次开发，保留原始体验，主要文档仍以官方站点为准：<https://wg-easy.github.io/wg-easy/latest/>。当前版本号为 `15.1.0-upstream.1`，主要新增内容如下：
 
-<!-- TOOD: update screenshot -->
+- 新增客户端上游服务器分流配置。
+- 自定义分流模式提供代理/直连/自定义规则。
+- 客户端卡片支持一键复制配置。
+- 默认随机分配客户端内网网段。
 
-<p align="center">
-  <img src="./assets/screenshot.png" width="802" alt="wg-easy Screenshot" />
-</p>
+详细更新记录见 [CHANGELOG-UPSTREAM.md](./CHANGELOG-UPSTREAM.md)。
 
-## 核心更新
+## 安装指南
 
-- 新增客户端上游服务器分流配置，支持导入 WireGuard `.conf` 并自动清理遗留 ipset。
-- 自定义分流模式提供代理/直连规则文本域、占位示例与多语言说明。
-- 客户端卡片支持一键复制配置，兼容现代与回退剪贴板能力。
-- 默认随机分配客户端内网网段，优化无人值守部署。
+以下步骤基于官方文档的基础安装流程，示例目录为 `/etc/docker/containers/wg-easy`，可按需调整。
 
-更多细节请见 [CHANGELOG-FORK.md](./CHANGELOG-FORK.md)。
+1. **准备环境**
+   - 一台可自行管理的主机（支持 x86_64、arm64、armv7 架构）
+   - 可访问的公网 IP 或域名
+   - 已安装 `curl`
 
-## Features
+2. **安装 Docker**
 
-- All-in-one: WireGuard + Web UI.
-- Easy installation, simple to use.
-- List, create, edit, delete, enable & disable clients.
-- Show a client's QR code.
-- Download a client's configuration file.
-- Statistics for which clients are connected.
-- Tx/Rx charts for each connected client.
-- Gravatar support.
-- Automatic Light / Dark Mode
-- Multilanguage Support
-- One Time Links
-- Client Expiration
-- Prometheus metrics support
-- IPv6 support
-- CIDR support
-- 2FA support
+   参考 <https://docs.docker.com/engine/install/> 完成 Docker 安装，或在主机上执行：
 
-> [!NOTE]
-> To better manage documentation for this project, it has its own site here: [https://wg-easy.github.io/wg-easy/latest](https://wg-easy.github.io/wg-easy/latest)
+   ```shell
+   curl -sSL https://get.docker.com | sh
+   exit
+   ```
 
-- [Getting Started](https://wg-easy.github.io/wg-easy/latest/getting-started/)
-- [Basic Installation](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/basic-installation/)
-- [Caddy](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/caddy/)
-- [Traefik](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/traefik/)
-- [Podman](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/podman-nft/)
-- [AdGuard Home](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/adguard/)
+   重新登陆后继续执行后续步骤。
 
-> [!NOTE]
-> If you want to migrate from the old version to the new version, you can find the migration guide here: [Migration Guide](https://wg-easy.github.io/wg-easy/latest/advanced/migrate/)
+3. **拉取配置与启动**
 
-## Installation
+   ```shell
+   sudo mkdir -p /etc/docker/containers/wg-easy
+   sudo curl -o /etc/docker/containers/wg-easy/docker-compose.yml \
+     https://raw.githubusercontent.com/kuaifan/wg-easy/upstream/docker-compose.yml
+   cd /etc/docker/containers/wg-easy
+   sudo docker compose up -d
+   ```
+   默认镜像指向 `ghcr.io/kuaifan/wg-easy:15.1.0-upstream.1`，可按需调整标签。
 
-This is a quick start guide to get you up and running with WireGuard Easy.
+4. **开放防火墙端口**
+   - 默认 WireGuard 端口：UDP `51820`（若修改配置，请同步调整防火墙策略）
 
-For a more detailed installation guide, please refer to the [Getting Started](https://wg-easy.github.io/wg-easy/latest/getting-started/) page.
+5. **可选：配置反向代理**
+   - Traefik、Caddy 等示例可参考官方文档对应章节。
+   - 如无需反向代理，可参考官方的 “No Reverse Proxy” 指南直接开放服务端口。
 
-### 1. Install Docker
+6. **更新到新版**
 
-If you haven't installed Docker yet, install it by running as root:
+   ```shell
+   cd /etc/docker/containers/wg-easy
+   sudo docker compose pull
+   sudo docker compose up -d
+   ```
 
-```shell
-curl -sSL https://get.docker.com | sh
-exit
-```
+## 许可证
 
-And log in again.
-
-### 2. Run WireGuard Easy
-
-The easiest way to run WireGuard Easy is with Docker Compose.
-
-Just follow [these steps](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/basic-installation/) in the detailed documentation.
-
-You can also install WireGuard Easy with the [docker run command](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/docker-run/) or via [podman](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/podman-nft/).
-
-Now [setup a reverse proxy](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/basic-installation/#setup-reverse-proxy) to be able to access the Web UI securely from the internet. This step is optional, just make sure to follow the guide [here](https://wg-easy.github.io/wg-easy/latest/examples/tutorials/reverse-proxyless/) if you decide not to do it.
-
-## Donate
-
-Are you enjoying this project? Consider donating.
-
-Founder: [Buy Emile a beer!](https://github.com/sponsors/WeeJeWel) 🍻
-
-Maintainer: [Buy kaaax0815 a coffee!](https://github.com/sponsors/kaaax0815) ☕
-
-## Development
-
-### Prerequisites
-
-- Docker
-- Node LTS & corepack enabled
-- Visual Studio Code
-
-### Dev Server
-
-This starts the development server with docker
-
-```shell
-pnpm dev
-```
-
-### Update Auto Imports
-
-If you add something that should be auto-importable and VSCode complains, run:
-
-```shell
-cd src
-pnpm install
-cd ..
-```
-
-### Test Cli
-
-This starts the cli with docker
-
-```shell
-pnpm cli:dev
-```
-
-## License
-
-This project is licensed under the AGPL-3.0-only License - see the [LICENSE](LICENSE) file for details
-
-This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Jason A. Donenfeld, ZX2C4 or Edge Security
-
-"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfeld
+本项目沿用原仓库协议，遵循 [AGPL-3.0-only](LICENSE)。本项目与 Jason A. Donenfeld、ZX2C4 或 Edge Security 无官方关联；“WireGuard” 及其 Logo 为 Jason A. Donenfeld 的注册商标。

@@ -70,7 +70,7 @@ ENV INSECURE=false
 ENV INIT_ENABLED=false
 ENV DISABLE_IPV6=false
 
-LABEL org.opencontainers.image.source=https://github.com/wg-easy/wg-easy
+LABEL org.opencontainers.image.source=https://github.com/kuaifan/wg-easy
 
 # Run Web UI
 CMD ["/usr/bin/dumb-init", "node", "server/index.mjs"]
