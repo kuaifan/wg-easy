@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mx-auto max-w-[94%]">
     <header class="mx-auto mt-4 flex max-w-4xl flex-col justify-center">
       <div
         class="mb-5 w-full"
